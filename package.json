@@ -1,0 +1,10 @@
+{
+  "name": "malta-watermark",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A purposefully ugly client-side ID/passport image watermarker for a Malta stay.",
+  "scripts": {
+    "dev": "python3 -m http.server 5173",
+    "start": "python3 -m http.server 5173"
+  }
+}
