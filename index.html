@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Client-side image watermarker for a Malta stay document copy."
+    />
+    <title>Malta Watermark-o-Matic 3000</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero-strip" aria-label="Malta Watermark-o-Matic">
+        <div class="blink-badge">100% Computer Magic</div>
+        <h1>Malta Watermark-o-Matic 3000</h1>
+        <div class="rainbow-ruler" aria-hidden="true"></div>
+      </section>
+
+      <section class="machine" aria-label="Watermark machine">
+        <div class="control-panel">
+          <label class="file-drop" for="imageInput">
+            <span class="file-drop-title">Pick the Very Official Picture</span>
+            <span class="file-name" id="fileName">no image selected :(</span>
+            <input id="imageInput" type="file" accept="image/*" />
+          </label>
+
+          <label class="field-label" for="watermarkText">Official Squiggle Text</label>
+          <textarea id="watermarkText" rows="3">For Sliema Central Apt. 8, Malta stay, July 2-5 2026</textarea>
+
+          <div class="knob-row" aria-label="Watermark controls">
+            <label>
+              Opacity
+              <input id="opacityRange" type="range" min="0.1" max="0.75" step="0.05" value="0.3" />
+            </label>
+            <label>
+              Size
+              <input id="sizeRange" type="range" min="20" max="96" step="2" value="42" />
+            </label>
+            <label>
+              Tilt
+              <input id="tiltRange" type="range" min="-45" max="-8" step="1" value="-28" />
+            </label>
+          </div>
+
+          <div class="button-stack">
+            <button id="downloadButton" type="button" disabled>DOWNLOAD MASTERPIECE</button>
+            <button id="resetButton" type="button">START OVER LOL</button>
+          </div>
+
+          <p class="tiny-trust">browser-only zone - no upload button exists</p>
+        </div>
+
+        <div class="preview-panel">
+          <div class="corner-sticker top-left">WOW</div>
+          <div class="corner-sticker bottom-right">SECURE?</div>
+          <canvas id="previewCanvas" width="1200" height="800" aria-label="Watermarked preview"></canvas>
+          <div id="emptyState" class="empty-state">DROP ID JPEG HERE-ish</div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
