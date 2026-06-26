@@ -17,19 +17,22 @@ let loadedImage = null;
 let outputFileName = "malta-watermarked-id.png";
 
 function createDemoImageDataUrl() {
+  const isPortraitDemo = new URLSearchParams(window.location.search).get("demo") === "portrait";
+  const width = isPortraitDemo ? 560 : 900;
+  const height = isPortraitDemo ? 900 : 560;
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">
-      <rect width="900" height="560" fill="#f2f4f8"/>
-      <rect x="32" y="32" width="836" height="496" rx="18" fill="#fff" stroke="#222" stroke-width="8"/>
-      <rect x="76" y="92" width="260" height="320" fill="#c9def8" stroke="#333" stroke-width="5"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+      <rect width="${width}" height="${height}" fill="#f2f4f8"/>
+      <rect x="32" y="32" width="${width - 64}" height="${height - 64}" rx="18" fill="#fff" stroke="#222" stroke-width="8"/>
+      <rect x="76" y="92" width="${Math.min(260, width - 150)}" height="320" fill="#c9def8" stroke="#333" stroke-width="5"/>
       <circle cx="206" cy="210" r="70" fill="#f2c7aa"/>
       <path d="M112 398c18-78 170-78 188 0" fill="#4d68c8"/>
-      <rect x="390" y="104" width="360" height="34" fill="#222"/>
-      <rect x="390" y="176" width="420" height="28" fill="#777"/>
-      <rect x="390" y="238" width="380" height="28" fill="#999"/>
-      <rect x="390" y="300" width="330" height="28" fill="#777"/>
-      <rect x="390" y="362" width="410" height="28" fill="#aaa"/>
-      <text x="450" y="475" font-family="Arial, sans-serif" font-size="42" fill="#333" text-anchor="middle">DUMMY TEST IMAGE</text>
+      <rect x="${isPortraitDemo ? 92 : 390}" y="${isPortraitDemo ? 470 : 104}" width="${isPortraitDemo ? 376 : 360}" height="34" fill="#222"/>
+      <rect x="${isPortraitDemo ? 92 : 390}" y="${isPortraitDemo ? 540 : 176}" width="${isPortraitDemo ? 340 : 420}" height="28" fill="#777"/>
+      <rect x="${isPortraitDemo ? 92 : 390}" y="${isPortraitDemo ? 602 : 238}" width="${isPortraitDemo ? 300 : 380}" height="28" fill="#999"/>
+      <rect x="${isPortraitDemo ? 92 : 390}" y="${isPortraitDemo ? 664 : 300}" width="${isPortraitDemo ? 360 : 330}" height="28" fill="#777"/>
+      <rect x="${isPortraitDemo ? 92 : 390}" y="${isPortraitDemo ? 726 : 362}" width="${isPortraitDemo ? 310 : 410}" height="28" fill="#aaa"/>
+      <text x="${width / 2}" y="${height - 60}" font-family="Arial, sans-serif" font-size="42" fill="#333" text-anchor="middle">DUMMY TEST IMAGE</text>
     </svg>
   `.trim();
 
@@ -60,12 +63,10 @@ function drawWatermark() {
   }
 
   const { width, height } = fitDimensions(loadedImage.naturalWidth, loadedImage.naturalHeight);
-  const scale = width / loadedImage.naturalWidth;
   const text = watermarkText.value.trim() || DEFAULT_TEXT;
   const fontSize = Number(sizeRange.value);
   const opacity = Number(opacityRange.value);
   const tilt = (Number(tiltRange.value) * Math.PI) / 180;
-  const gap = Math.max(fontSize * 5.7, 280);
 
   canvas.width = width;
   canvas.height = height;
@@ -83,8 +84,14 @@ function drawWatermark() {
   context.lineWidth = Math.max(3, fontSize * 0.1);
 
   const diagonal = Math.hypot(width, height);
-  for (let y = -diagonal; y < height + diagonal; y += gap) {
-    for (let x = -diagonal; x < width + diagonal; x += gap * 1.35) {
+  const textWidth = context.measureText(text).width;
+  const horizontalGap = Math.max(textWidth + fontSize * 8, diagonal * 0.72);
+  const verticalGap = Math.max(fontSize * 8, 360);
+  const rowOffset = horizontalGap * 0.5;
+
+  for (let y = -diagonal; y < height + diagonal; y += verticalGap) {
+    const stagger = Math.round((y + diagonal) / verticalGap) % 2 === 0 ? 0 : rowOffset;
+    for (let x = -diagonal - rowOffset + stagger; x < width + diagonal; x += horizontalGap) {
       context.strokeStyle = "#ffffff";
       context.strokeText(text, x, y);
       context.fillStyle = "#d30000";
@@ -92,23 +99,6 @@ function drawWatermark() {
     }
   }
 
-  context.restore();
-
-  context.save();
-  context.globalAlpha = 0.88;
-  let footerSize = Math.max(18, fontSize * 0.62);
-  context.font = `900 ${footerSize}px "Comic Sans MS", "Comic Sans", cursive`;
-  while (context.measureText(text).width > width * 0.92 && footerSize > 12) {
-    footerSize -= 2;
-    context.font = `900 ${footerSize}px "Comic Sans MS", "Comic Sans", cursive`;
-  }
-  context.fillStyle = "#fff600";
-  context.strokeStyle = "#000000";
-  context.lineWidth = 6;
-  context.textAlign = "center";
-  context.textBaseline = "bottom";
-  context.strokeText(text, width / 2, height - 22);
-  context.fillText(text, width / 2, height - 22);
   context.restore();
 
   previewPanel.classList.add("has-image");
@@ -177,6 +167,6 @@ resetButton.addEventListener("click", resetApp);
 
 drawPlaceholder();
 
-if (new URLSearchParams(window.location.search).get("demo") === "1") {
+if (["1", "portrait"].includes(new URLSearchParams(window.location.search).get("demo"))) {
   loadImageUrl(createDemoImageDataUrl(), "dummy-id.svg");
 }
